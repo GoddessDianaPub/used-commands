@@ -49,14 +49,16 @@ docker ps
 # Lists all the containers
 docker ps -a
 
-# Creates a running container with port binding between the localhost and the service that you run on the container, with the latest version and with a random container name
-## The service port must match the port in he documentation! 
-### The localhost port usually will be the same as the service port, unless you have for example different versions for the same service
+# Creates a running container with port binding between the localhost and the service that you run on the container,
+## with the latest version and with a random container name
+### The service port must match the port in he documentation! 
+#### The localhost port usually will be the same as the service port, unless you have for example different versions for the same service
 docker run -d -p<localhost port:Service port> <Image Name>
 
-# Creates a running container with port binding between the local host and the service that you run on the container, with a specific version and with a random container name
-## The service port must match the port in he documentation! 
-### The localhost port usually will be the same as the service port, unless you have for example different versions for the same service
+# Creates a running container with port binding between the local host and the service that you run on the container,
+## with a specific version and with a random container name
+### The service port must match the port in he documentation! 
+#### The localhost port usually will be the same as the service port, unless you have for example different versions for the same service
 docker run -d -p<localhost port:Service port> <Image Name:Image Version>
 
 # Creates a running container with a specific container name and with the latest version
