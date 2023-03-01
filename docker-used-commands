@@ -1,34 +1,131 @@
-# downloads an image from dokcer hub public registry
+# Downloads an image from dokcer hub public registry
 docker pull <Image Name>
 
-# checks current images on your host
-docker images
+# Checks current images on your host
+docker images 
 
-# creates a temporary running state container from docker hub public registry image
+# Deletes a specific image
+docker rmi <Image Name>
+
+# Deletes multiple images
+docker rmi <Image Name> <Image Name> etc
+
+# Creates a temporary running state container from docker hub public registry image with the latest version and with a random container name
+docker run <Image Name>
+
+# Creates a temporary running state container from docker hub public registry image with a specific version and with a random container name
 docker run <Image Name:Image Version>
 
-# creates a running container from docker hub public registry image
+# Creates a running container from docker hub public registry image with the latest version and with a random container name
+docker run -d <Image Name>
+
+# Creates a running container from docker hub public registry image with a specific version and with a random container name
 docker run -d <Image Name:Image Version>
 
-# checks the container logs
+# Checks the container logs
 docker logs <CONTAINER ID/NAME>
 
-# stop the container
+# Stops the container
 docker stop <CONTAINER ID/NAME>
 
-# stop multiple containers
+# Stops multiple containers
 docker stop <CONTAINER ID/NAME> <CONTAINER ID/NAME> etc
 
-# start the container
+# Deletes the container
+docker rm <CONTAINER ID/NAME>
+
+# Deletes multiple containers
+docker rm <CONTAINER ID/NAME> <CONTAINER ID/NAME> etc
+
+# Starts the container
 docker start <CONTAINER ID/NAME>
 
-# start multiple containers
+# Starts multiple containers
 docker start <CONTAINER ID/NAME> <CONTAINER ID/NAME> etc
 
-# lists the running containers
+# Lists the running containers
 docker ps
 
-# lists all the containers
+# Lists all the containers
 docker ps -a
 
-# 
+# Creates a running container with port binding between the localhost and the service that you run on the container, with the latest version and with a random container name
+## The service port must match the port in he documentation! 
+### The localhost port usually will be the same as the service port, unless you have for example different versions for the same service
+docker run -d -p<localhost port:Service port> <Image Name>
+
+# Creates a running container with port binding between the local host and the service that you run on the container, with a specific version and with a random container name
+## The service port must match the port in he documentation! 
+### The localhost port usually will be the same as the service port, unless you have for example different versions for the same service
+docker run -d -p<localhost port:Service port> <Image Name:Image Version>
+
+# Creates a running container with a specific container name and with the latest version
+docker run -d --name <Name> <Image Name>
+
+# Creates a running container with a specific container name and with a specific version
+docker run -d --name <Name> <Image Name>
+
+# Entering the container with interactive mode with bash
+docker exec -it <CONTAINER ID/NAME> /bin/bash
+
+# Entering the container with interactive mode with shell
+docker exec -it <CONTAINER ID/NAME> /bin/sh
+
+# Lists the current folder we are in
+pwd
+
+# Lists all the content in a specific folder
+ls
+
+# Lists the enviroment variables configured in the container
+env
+
+# Exits the container
+exit
+
+# Lists all the network configured
+docker network ls
+
+# Creates a docker network (preferable to include "network" in the name)
+docker network create <Network Name>
+
+# Creates a running container with port binding, a specific container name, assigns it to a specific container network and with the latest version
+docker run -d -p<localhost port:Service port> --name <Name> --net <Network Name> <Image Name>
+
+# Creates a running container with port binding, a specific container name, assigns it to a specific container network and with a specific version
+docker run -d -p<localhost port:Service port> --name <Name> --net <Network Name> <Image Name:Image Version>
+
+# Creates a running mongodb container with port binding, a specific container name, specific enviroments (as described in the documentation),
+## assigns it to "mongo-network" network, with the latest mongo image
+docker run -d -p27017:27017 --name mongodb -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password --net mongo-network mongo
+
+# Creates a running mongodb container with port binding, a specific container name, specific enviroments (as described in the documentation),
+## assigns it to "mongo-network" network, with mongo version 4.4 image
+docker run -d -p27018:27017 --name mongodb -e MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=password --net mongo-network mongo:4.4
+
+# Creates a running mongo-express container with port binding, a specific container name, specific enviroments (as described in the documentation),
+## assigns it to "mongo-network" network, connects it to the mongodb server, with mongo-express latest version
+docker run -d -p8081:8081 --name mongo-express -e ME_CONFIG_MONGODB_ADMINUSERNAM=admin -e ME_CONFIG_MONGODB_ADMINPASSWORD=password --net mongo-network -e ME_CONFIG_MONGODB_SERVER=mongodb mongo-express
+
+# Creates a running mongodb container with port binding, a specific container name, specific enviroments (as described in the documentation),
+## assigns it to "mongo-network" network, connects it to the mongodb server, with mongo-express version 1.0 image
+docker run -d -p8082:8081 --name mongo-express -e ME_CONFIG_MONGODB_ADMINUSERNAM=admin -e ME_CONFIG_MONGODB_ADMINPASSWORD=password --net mongo-network -e ME_CONFIG_MONGODB_SERVER=mongodb mongo-express:1.0
+
+# Creates a temporary running state container/s (with all other configurations) from "docker-compose.yaml" file
+docker-compose -f docker-compose.yaml up
+
+# Creates a running container/s (with all other configurations) from "docker-compose.yaml" file
+docker-compose -f docker-compose.yaml up -d
+
+# Deletes the container/s created (with all other configurations) from "docker-compose.yaml" file
+docker-compose -f docker-compose.yaml down
+
+# Build an image from a Dockerfile
+docker build -t <Image Name> .
+
+# Push your image to Amazon ECR (after creating this profile "aws configure --profile docker"), image name for example "my-app"
+## Retrieve an authentication token and authenticate your Docker client to your registry, Using the AWS CLI:
+aws ecr get-login-password --profile docker --region us-east-1 | docker login --username AWS --password-stdin 735911875499.dkr.ecr.us-east-1.amazonaws.com
+docker tag my-app:latest 735911875499.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
+docker push 735911875499.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
+
