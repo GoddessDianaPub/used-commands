@@ -1,0 +1,46 @@
+# Inizializes terraform in a specific folder
+terraform init
+
+# Checks the syntax in all the files
+terraform validate
+
+# Lists the resources that are going to be created / changed
+terraform plan
+
+# Creates / changes the provider enviroment's cloud specified
+terraform apply
+
+# Skips interactive approval of plan before applying
+terraform apply -auto-approve
+
+# Prints out the state of your Terraform resources
+terraform show
+
+# Lists the resources in your configuration
+terraform state list
+
+# Cleans up your infrastructure
+terraform destroy
+
+# Skips interactive approval of plan before destroying your infrastructure
+terraform destroy -auto-approve
+
+# Plans any changes, but targets only a specfic resource in your main.tf
+terraform plan -target="<specific resource>"
+terraform plan -target="aws_s3_object.objects[2]"
+
+# Applies any changes, but targets only a specfic resource in your main.tf
+terraform apply -target="<specific resource>"
+terraform apply -target="aws_s3_object.objects[2]"
+
+# Applies any changes and targets multiple resources at once in your main.tf
+terraform apply -target="<specific resource>" -target="<specific resource>"
+terraform apply -target="aws_s3_object.objects[2]" -target="aws_s3_object.objects[3]"
+
+# Destroys any changes, but targets only a specfic resource in your infrastructure
+terraform destroy -target="aws_s3_bucket_object.objects[2]"
+
+# Destroys the entire collection of bucket objects resources at once in your infrastructure
+terraform destroy -target="aws_s3_object.objects"
+
+
