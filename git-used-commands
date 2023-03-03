@@ -4,8 +4,11 @@ git clone
 # Change to your repo directory
 cd <repo folder name>
 
-# Checks the remote status
+# Displays the origin remote server name
 git remote -v
+
+# Displays the origin remote branch names and status
+git branch -vv
 
 # Sets a different origin to a repo
 git remote set-url origin <URL>
@@ -19,8 +22,11 @@ git remote add upstream <URL>
 # Sets a different upstream to a repo
 git remote set-url upstream <URL>
 
-# Lists the branches
+# Lists the branches on the local repository
 git branch
+
+# Lists the branches on the local and remote repository
+git branch -a
 
 # Deletes the branch you specified
 git branch -d <Branch Name>
@@ -67,6 +73,9 @@ git push origin <Branch Name>
 
 # Pushes the commits to the specified upstream branch 
 git push upstream <Branch Name>
+
+# Pushes the changes and sets the base remote branch as default (usually main/master)
+git push --set-upstream origin <base branch>
 
 # Combines multiple sequences of commits into one unified history
 git merge <Branch Name>
