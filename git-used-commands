@@ -1,0 +1,87 @@
+# Downloads the repo to your computer
+git clone
+
+# Change to your repo directory
+cd <repo folder name>
+
+# Checks the remote status
+git remote -v
+
+# Sets a different origin to a repo
+git remote set-url origin <URL>
+
+# Adds an origin to repo that doesn't have any
+git remote add origin <URL>
+
+# Adds an upstream to repo that doesn't have any
+git remote add upstream <URL>
+
+# Sets a different upstream to a repo
+git remote set-url upstream <URL>
+
+# Lists the branches
+git branch
+
+# Deletes the branch you specified
+git branch -d <Branch Name>
+
+# Shows the branch status
+git status
+
+# Creates a new branch
+git checkout -b <New Branch Name>
+
+# Switch to a different branch
+git checkout <Branch Name>
+
+# Downloads objects from the specified origin branch
+git fetch origin <Branch Name>
+
+# Downloads objects from the specified upstream branch
+git fetch upstream <Branch Name>
+
+# Git fetch + changes your local repo folder according the specified origin branch
+git pull origin <Branch Name>
+
+# Git fetch + changes your local repo folder according the specified upstream branch
+git pull upstream <Branch Name>
+
+# Stage all the changes that has been made, to the branch you are currently at
+git add .
+
+# Stage all changes in a specific file, to the branch you are currently at
+git add <file>
+
+# Stage all changes in a specific folder, to the branch you are currently at
+git add <directory>
+
+# Begins an interactive staging session that lets you choose portions of a file changes
+## Use: y to stage, n to ignore, s to split it into smaller chunks, e to manually edit the chunk, and q to exit
+git add -p
+
+# Adds your description to the changes you have made
+git commit -m "<string>"
+
+# Pushes the commits to the specified origin branch 
+git push origin <Branch Name>
+
+# Pushes the commits to the specified upstream branch 
+git push upstream <Branch Name>
+
+# Combines multiple sequences of commits into one unified history
+git merge <Branch Name>
+
+e.g.
+# Create a new branch
+git checkout -b new-feature
+# Edit some files
+git add <file>
+git commit -m "Start a feature"
+# Edit some files
+git add <file>
+git commit -m "Finish a feature"
+# Merge in the new-feature branch
+git checkout main
+git merge new-feature
+git branch -d new-feature
+
