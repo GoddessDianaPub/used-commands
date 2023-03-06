@@ -1,0 +1,30 @@
+
+ansible-inventory -i <inventory file name> --list
+
+ansible-inventory --graph -i <inventory file name>
+
+
+enviroment variables
+export <ansible variable>=<value>
+e.g. export ANSIBLE_ROLES_PATH=~/Configuration-Management/Homework2/docker_installation
+
+
+
+echo $<ansible variable>
+e.g. echo $ANSIBLE_ROLES_PAT
+
+
+ansible <hosts> -m <module>
+e.g. 
+ansible all -m ping
+ansible aws_ec2 -m ping 
+
+ansible <hosts> -a <command>
+e.g.
+ansible all -a "/sbin/reboot"
+
+
+ansible-playbook -C -i <inventory file name> <playbook file>
+ansible-playbook -i <inventory file name> <playbook file>
+
+
