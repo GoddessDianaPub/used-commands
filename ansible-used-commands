@@ -27,4 +27,6 @@ ansible all -a "/sbin/reboot"
 ansible-playbook -C -i <inventory file name> <playbook file>
 ansible-playbook -i <inventory file name> <playbook file>
 
+# Create your own role structure
+ansible-galaxy ini mysql
 
