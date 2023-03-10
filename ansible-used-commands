@@ -36,5 +36,14 @@ ansible-galaxy search <role name>
 # To use a role you need to install it on your computer
 ansible-galaxy install <role name>
 
+# You can configure the current directory as a location for the specific role to be installed
+ansible-galaxy install <role name> -p <path>
+
+# To see all the roles installed on your computer
+ansible-galaxy list
+
+# To view the locations where the roles will be installed
+ansible-config dump | grep ROLE
+
 
 
