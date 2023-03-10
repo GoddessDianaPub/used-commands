@@ -1,0 +1,12 @@
+# Starts a minikube docker
+minikube start --driver docker
+
+# To see the status of the minikube started
+minikube status
+
+** minikube cli is for to strat the cluster, but we manage it with kubectl cli **
+
+# Displys all the nodes in the cluster
+kubectl get node
+
+# 
