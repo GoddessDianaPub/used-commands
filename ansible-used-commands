@@ -30,3 +30,11 @@ ansible-playbook -i <inventory file name> <playbook file>
 # Create your own role structure
 ansible-galaxy init <role name>
 
+# To search for a role within your cli
+ansible-galaxy search <role name>
+
+# To use a role you need to install it on your computer
+ansible-galaxy install <role name>
+
+
+
