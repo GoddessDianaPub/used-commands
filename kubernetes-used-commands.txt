@@ -1,13 +1,11 @@
-# Starts a minikube docker
-minikube start --driver docker
 
-# To see the status of the minikube started
-minikube status
+** minikube cli is for stratup/deleting the cluster, but we manage minikube with kubectl cli **
 
-# Lists the ip address of our minikube
-minikube ip
+# To see what you can do with minikube
+minikube
 
-** minikube cli is for to strat the cluster, but we manage it with kubectl cli **
+# To see what you can do with kubectl
+kubectl
 
 # To get the kubectl cli command list
 kubectl --help
@@ -15,8 +13,30 @@ kubectl --help
 # To get the sub command of kubectl cli command list
 kubectl <sub command name> --help
 
+# Lists the default driver configured (if any)
+minikube config get driver
+
+# Sets the default driver you choose
+minikube config set driver <driver name>
+
+# Starts a minikube cluster
+minikube start --driver=<driver name>
+
+# To see the status of the minikube available
+minikube status
+
+# A configmap which contains cluster information
+kubectl cluster-info
+
 # Displys all the nodes in the cluster
 kubectl get node
+
+# To see the kubernetes veriosn installed
+kubectl version --output=yaml
+kubectl version --output=json
+
+# Lists the ip address of our minikube
+minikube ip
 
 # Lists wide details about the node as well as the ip address of our minikube
 kubectl get node -o wide
@@ -27,13 +47,32 @@ kubectl get pod
 # Lists wide details about the available components in the pod
 kubectl get pod -o wide
 
-# Applies the configuration from a file
-kubectl apply -f <file name>
+# To ese how you can create a pod
+kubectl create -h
+
+# Creates a pod (you need to use deployment, you can't created pods directly)
+kubectl create deployment <deploy name> --image=<image name>
+
+# Lists the deployments we have
+kubectl get deployment
+
+# lists the replica configured in the pod
+kubectl get replicaset
+
+# To edit the deployment file
+kubectl edit deployment <deployment name>
 
 # Lists all the components created in the cluster
 kubectl get all
 
-# To get more details about a certain component
+# Lists all the configuration we created in the cluster with wide details using service/svc
+kubectl get service
+kubectl get svc
+
+# Lists all the configuration we created in the cluster with wide details using service/svc 
+kubectl get svc -o wide
+
+# To get more details about certain components
 kubectl describe <component name> <component instance name>
 
 # To see more details about a certain pod
@@ -42,19 +81,118 @@ kubectl describe pod <pod name>
 # To get logs about a pod
 kubectl logs <pod name>
 
+# Opens a terminal in the pod
+kubectl exec -it <pod name> -- bin/bash
+
 # To string the logs about a pod
 kubectl logs <pod name> -f
 
-# Lists the configmap component details
-kubectl get configmap
+# Deletes a component
+kubectl delete <component name>
+
+# Creates a username that needs to be copied to the secret file
+echo -n 'username' | base64
+
+# Creates a password that needs to be copied to the secret file
+echo -n 'password' | base64
+
+# Create a secret component from a secret configuration file
+kubectl apply -f <secret file name>
 
 # Lists the secrets component details
 kubectl get secret
 
-# Lists all the configuration we created in the cluster with wide details using service/svc
-kubectl get service
-kubectl get svc
+# Create a configmap from a configuration file
+kubectl apply -f <configmap file name>
 
-# Lists all the configuration we created in the cluster with wide details using service/svc 
-kubectl get svc -o wide
+# Lists the configmap component details
+kubectl get configmap
+
+# Create a deployment from a configuration file
+kubectl apply -f <deployment file name>
+
+# Lists continuously updating list of pods in the Kubernetes cluster
+kubectl get pod --watch
+
+# To see all the component from the same types e.g. mongodb
+Linux terminal:
+kubectl get all | grep <component name>
+kubectl get all | grep mongodb
+Windows cmd:
+kubectl get all | findstr <component name>
+kubectl get all | findstr mongodb
+
+# Assigns an exteranl ip address to a service in order to be able to browse with it
+minikube service <service name>
+
+# Deletes a deployment from a configuration file
+kubectl delete -f <file name>
+
+# Creates a namespace 
+kubectl create namespace <namespace name>
+
+# Lists the namespaces in the cluster (you can also includes it in the configmap.yaml file)
+kubectl get namespace
+
+# Lists the namespaces in the cluster (depends on "kubectx" command)
+kubens
+
+# Changes the default namespace to whatever you want
+kubens <namespace name>
+e.g.
+kubens my-namespace
+
+# Lists all the components that are not part of any namespace
+kubectl api-resources --namespaced=false
+
+# Lists all the components that are part of any namespace
+kubectl api-resources --namespaced=true
+
+# List the component namespace (-n = namespace)
+kubectl get <component name> -n <namespace name>
+kubectl get <component name> -o yaml
+e.g.
+kubectl get configmap -n default
+kubectl get configmap -o yaml
+
+# Lists all the components under a namespace (-n = namespace)
+kubectl get all -n <namespace name>
+
+# Creates the component in a specific namespace (it's recommended to add it to the configmap file)
+kubectl apply -f <component file name> --namespace=my-namespace
+e.g.
+kubectl apply -f mongo-configmap.yaml --namespace=<namespace name>
+
+# Starts and configures the k8s nginx implemetation of ingree controller
+minikube addons enable ingress
+
+# Lists the ingress configured
+kubectl get ingress
+
+# Lists the ingress configured in a specifc namespace
+kubectl get ingress -n <namespace name>
+
+# Watchs the ingress configured in a specifc namespace
+kubectl get ingress -n <namespace name> --watch
+
+# Lists more details about an ingress configured in a specifc namespace
+kubectl describe ingress <ingress name> -n <namespace name>
+
+# To search for a deployment (as well as in helm hub site)
+helm search <keyword>
+
+# Installls a chart
+helm install <chart name>
+
+# Upgrades helm
+helm upgrade <chart name>
+
+# Restore to the last previous version (tiller keeps the charts history, available until helm v2)
+helm rollback <chart name>
+
+# Installs helm with a specific values to override the values file
+helm install --value=<value file name> <chart name>
+
+# Installs helm with a specific version
+helm install --set version=<version number>
 
