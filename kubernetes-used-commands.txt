@@ -4,9 +4,57 @@ minikube start --driver docker
 # To see the status of the minikube started
 minikube status
 
+# Lists the ip address of our minikube
+minikube ip
+
 ** minikube cli is for to strat the cluster, but we manage it with kubectl cli **
+
+# To get the kubectl cli command list
+kubectl --help
+
+# To get the sub command of kubectl cli command list
+kubectl <sub command name> --help
 
 # Displys all the nodes in the cluster
 kubectl get node
 
-# 
+# Lists wide details about the node as well as the ip address of our minikube
+kubectl get node -o wide
+
+# Lists the available components in the pod
+kubectl get pod
+
+# Lists wide details about the available components in the pod
+kubectl get pod -o wide
+
+# Applies the configuration from a file
+kubectl apply -f <file name>
+
+# Lists all the components created in the cluster
+kubectl get all
+
+# To get more details about a certain component
+kubectl describe <component name> <component instance name>
+
+# To see more details about a certain pod
+kubectl describe pod <pod name>
+
+# To get logs about a pod
+kubectl logs <pod name>
+
+# To string the logs about a pod
+kubectl logs <pod name> -f
+
+# Lists the configmap component details
+kubectl get configmap
+
+# Lists the secrets component details
+kubectl get secret
+
+# Lists all the configuration we created in the cluster with wide details using service/svc
+kubectl get service
+kubectl get svc
+
+# Lists all the configuration we created in the cluster with wide details using service/svc 
+kubectl get svc -o wide
+
