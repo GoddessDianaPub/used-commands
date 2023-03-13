@@ -50,7 +50,17 @@ kubectl get pod -o wide
 # To ese how you can create a pod
 kubectl create -h
 
-# Creates a pod (you need to use deployment, you can't created pods directly)
+# Creates a component depending on the file content
+kubectl create -f <file name>
+
+# Creates a pod
+kubectl run <pod name> --image=<image name>
+
+# Creates a yaml file with the pod configuration only (doesn't create the pod itself)
+## In order to create the pod, you need to create it with the apply -f commnad
+kubectl run <pod name> --image=<image name> --dry-run=client -o yaml
+
+# Creates a deployment
 kubectl create deployment <deploy name> --image=<image name>
 
 # Lists the deployments we have
@@ -58,6 +68,9 @@ kubectl get deployment
 
 # lists the replica configured in the pod
 kubectl get replicaset
+
+# Edits the current replicaset
+kubectl edit replicaset <replicaset name>
 
 # To edit the deployment file
 kubectl edit deployment <deployment name>
@@ -88,7 +101,7 @@ kubectl exec -it <pod name> -- bin/bash
 kubectl logs <pod name> -f
 
 # Deletes a component
-kubectl delete <component name>
+kubectl delete <component> <component name>
 
 # Creates a username that needs to be copied to the secret file
 echo -n 'username' | base64
@@ -163,6 +176,13 @@ kubectl apply -f <component file name> --namespace=my-namespace
 e.g.
 kubectl apply -f mongo-configmap.yaml --namespace=<namespace name>
 
+# Applies changes made on a file
+kubectl replace -f <file name>
+
+# Changes the number of the replicasets
+kubectl scale --replicas=<number> -f <file name>
+kubectl scale --replicas=<number> replicaset <replica's name>
+
 # Starts and configures the k8s nginx implemetation of ingree controller
 minikube addons enable ingress
 
@@ -196,3 +216,8 @@ helm install --value=<value file name> <chart name>
 # Installs helm with a specific version
 helm install --set version=<version number>
 
+# Lists all running processes to filter the string kube-scheduler
+Linux:
+ps -aux | grep kube-scheduler
+Windows
+tasklist /v | findstr kube-scheduler
