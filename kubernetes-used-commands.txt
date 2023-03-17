@@ -72,7 +72,10 @@ kubectl create -h
 # Creates a pod
 kubectl run <pod name> --image=<image name>
 
-# Generates POD Manifest YAML file (-o yaml), it doesn't create it(--dry-run)
+# Creates a pod with a specific label
+kubectl run <pod name> -l <label:value> --image=<image name>
+
+# Generates POD Manifest YAML file (-o yaml), it doesn't create it(--dry-run=client)
 kubectl run <pod name> --image=<image name> --dry-run=client -o yaml
 
 # Opens a terminal in the pod
@@ -81,11 +84,17 @@ kubectl exec -it <pod name> -- bin/bash
 # To string the logs about a pod
 kubectl logs <pod name> -f
 
+# Creates a service with a specific pod and expose it to the external network (default port is 80)
+kubectl expose pod <pod name> --port=<port number> --name <service name>
+
 
 Deployments (deploy):
 
 # Creates a deployment
 kubectl create deployment <deploy name> --image=<image name>
+
+# Creates a service in a specific deployment and expose it to the external network (default port is 80)
+kubectl expose deploy <deploy name> --port<port number>
 
 # Create a deployment from a configuration file
 kubectl apply -f <deployment file name>
@@ -93,8 +102,14 @@ kubectl apply -f <deployment file name>
 # Deletes a deployment from a configuration file
 kubectl delete -f <file name>
 
-# Creates a deployment file with certain number of replicas (in k8s version 1.19+)
-kubectl create deployment --image=<image name> <app name> --replicas=<replica number> --dry-run=client -o yaml > nginx-deployment.yaml
+# Creates a deployment with certain replicas
+kubectl create deployment <deploy name> --image=<image name> --replicas=<number of replicas>
+
+# Generates Deployment YAML file (-o yaml). Don't create it(--dry-run=client)
+kubectl create deployment --image=<image name> <deploy name> --dry-run=client -o yaml
+
+# Creates a deployment file (not the resources) with certain number of replicas (in k8s version 1.19+)
+kubectl create deployment --image=<image name> <deploy name> --replicas=<replica number> --dry-run=client -o yaml > nginx-deployment.yaml
 
 # Lists the deployments we have
 kubectl get deployment
@@ -104,7 +119,11 @@ kubectl get deploy -o wide
 kubectl describe deploy <deploy name>
 
 # To edit the deployment file
-kubectl edit deployment <deployment name>
+kubectl edit deployment <deploy name>
+
+# Scales the replicas in a deployment
+kubectl scale deployment  --replicas=<number of replicas>
+
 
 
 Replicaset (rs):
@@ -136,6 +155,9 @@ kubectl get svc -o wide
 # Assigns an exteranl ip address to a service in order to be able to browse with it
 minikube service <service name>
 
+# Creates a service
+kubectl create svc <service name>
+
 
 Secrets:
 
@@ -162,13 +184,14 @@ kubectl apply -f <configmap file name>
 kubectl get configmap
 
 
-Namespaces:
-
-# Creates a namespace 
-kubectl create namespace <namespace name>
+Namespaces (ns/n):
 
 # Lists the namespaces in the cluster (you can also includes it in the configmap.yaml file)
 kubectl get namespace
+kubectl get ns
+
+# Creates a namespace 
+kubectl create namespace <namespace name>
 
 # Lists the namespaces in the cluster (depends on "kubectx" command)
 kubens
@@ -177,6 +200,8 @@ kubens
 kubens <namespace name>
 e.g.
 kubens my-namespace
+or
+kubectl config set-contex $(kubectl config current-contex) --namespace=<namespace name>
 
 # Lists all the components that are not part of any namespace
 kubectl api-resources --namespaced=false
@@ -184,20 +209,35 @@ kubectl api-resources --namespaced=false
 # Lists all the components that are part of any namespace
 kubectl api-resources --namespaced=true
 
-# List the component namespace (-n = namespace)
+# Lists the component namespace (-n = namespace)
 kubectl get <component name> -n <namespace name>
 kubectl get <component name> -o yaml
 e.g.
 kubectl get configmap -n default
 kubectl get configmap -o yaml
 
-# Lists all the components under a namespace (-n = namespace)
+# Lists all the components under a specific namespace (-n = namespace)
 kubectl get all -n <namespace name>
+
+# Lists all the pods in a specific namespace
+kubectl get pod --namespace=<namespace name>
+
+# Creates a pod in a specific namespace
+kubectl run <pod name> --image=<image name> --namespace=<namespace name>
+
+# Creates a deployment in a specific namespace with replicas
+kubectl create deployment <deploy name> --image=<image name> --replicas=<number of replicas> -n <namespace name>
+
+# Lists all the pods in all the namespaces
+kubectl get pod --all-namespaces
+kubectl get pod -A
 
 # Creates the component in a specific namespace (it's recommended to add it to the configmap file)
 kubectl apply -f <component file name> --namespace=my-namespace
 e.g.
 kubectl apply -f mongo-configmap.yaml --namespace=<namespace name>
+
+# To limit resources in a sprcific namespace you need to create a Resource Quota
 
 
 Ingress:
@@ -240,14 +280,22 @@ helm install --set version=<version number>
 
 
 
-
 General commands:
+
+# Deletes a component
+kubectl delete <component> <component name>
 
 # Lists all the components created in the cluster
 kubectl get all
 
 # To get more details about certain components
 kubectl describe <component name> <component instance name>
+
+# Creates multiple components from multiple files
+kubectl apply -f /path/to/folder
+
+# Deletes a component from a file
+kubectl delete -f <file name>
 
 # Creates a component depending on the file content
 kubectl create -f <file name>
@@ -258,8 +306,8 @@ kubectl apply -f <file name>
 # Applies changes made on a file
 kubectl replace -f <file name>
 
-# Deletes a component
-kubectl delete <component> <component name>
+# Deletes the current component and re-create it
+kubectl replace --force -f <file name>
 
 # Lists all running processes to filter the string kube-scheduler
 Linux:
