@@ -1,6 +1,8 @@
 
 ** minikube cli is for stratup/deleting the cluster, but we manage minikube with kubectl cli **
 
+About Cluster:
+
 # To see what you can do with minikube
 minikube
 
@@ -28,8 +30,8 @@ minikube status
 # A configmap which contains cluster information
 kubectl cluster-info
 
-# Displys all the nodes in the cluster
-kubectl get node
+# To see your cluster configuration
+kubectl config view
 
 # To see the kubernetes veriosn installed
 kubectl version --output=yaml
@@ -38,36 +40,78 @@ kubectl version --output=json
 # Lists the ip address of our minikube
 minikube ip
 
+
+Nodes:
+
+# Displys all the nodes in the cluster
+kubectl get node
+
 # Lists wide details about the node as well as the ip address of our minikube
 kubectl get node -o wide
+kubectl describe node <node name>
+
+
+Pods:
 
 # Lists the available components in the pod
 kubectl get pod
 
+# To get logs about a pod
+kubectl logs <pod name>
+
+# Lists continuously updating list of pods in the Kubernetes cluster
+kubectl get pod --watch
+
 # Lists wide details about the available components in the pod
 kubectl get pod -o wide
+kubectl describe pod <pod name>
 
-# To ese how you can create a pod
+# To see how you can create a pod
 kubectl create -h
-
-# Creates a component depending on the file content
-kubectl create -f <file name>
 
 # Creates a pod
 kubectl run <pod name> --image=<image name>
 
-# Creates a yaml file with the pod configuration only (doesn't create the pod itself)
-## In order to create the pod, you need to create it with the apply -f commnad
+# Generates POD Manifest YAML file (-o yaml), it doesn't create it(--dry-run)
 kubectl run <pod name> --image=<image name> --dry-run=client -o yaml
+
+# Opens a terminal in the pod
+kubectl exec -it <pod name> -- bin/bash
+
+# To string the logs about a pod
+kubectl logs <pod name> -f
+
+
+Deployments (deploy):
 
 # Creates a deployment
 kubectl create deployment <deploy name> --image=<image name>
 
+# Create a deployment from a configuration file
+kubectl apply -f <deployment file name>
+
+# Deletes a deployment from a configuration file
+kubectl delete -f <file name>
+
+# Creates a deployment file with certain number of replicas (in k8s version 1.19+)
+kubectl create deployment --image=<image name> <app name> --replicas=<replica number> --dry-run=client -o yaml > nginx-deployment.yaml
+
 # Lists the deployments we have
 kubectl get deployment
 
+# Lists wide details about the available components in the pod
+kubectl get deploy -o wide
+kubectl describe deploy <deploy name>
+
+# To edit the deployment file
+kubectl edit deployment <deployment name>
+
+
+Replicaset (rs):
+
 # lists the replica configured in the pod
 kubectl get replicaset
+kubectl get rs
 
 # Explains about replicaset
 kubectl explain replicaset
@@ -75,11 +119,12 @@ kubectl explain replicaset
 # Edits the current replicaset
 kubectl edit replicaset <replicaset name>
 
-# To edit the deployment file
-kubectl edit deployment <deployment name>
+# Changes the number of the replicasets
+kubectl scale --replicas=<number> -f <file name>
+kubectl scale --replicas=<number> replicaset <replica's name>
 
-# Lists all the components created in the cluster
-kubectl get all
+
+Services (svc)
 
 # Lists all the configuration we created in the cluster with wide details using service/svc
 kubectl get service
@@ -88,23 +133,11 @@ kubectl get svc
 # Lists all the configuration we created in the cluster with wide details using service/svc 
 kubectl get svc -o wide
 
-# To get more details about certain components
-kubectl describe <component name> <component instance name>
+# Assigns an exteranl ip address to a service in order to be able to browse with it
+minikube service <service name>
 
-# To see more details about a certain pod
-kubectl describe pod <pod name>
 
-# To get logs about a pod
-kubectl logs <pod name>
-
-# Opens a terminal in the pod
-kubectl exec -it <pod name> -- bin/bash
-
-# To string the logs about a pod
-kubectl logs <pod name> -f
-
-# Deletes a component
-kubectl delete <component> <component name>
+Secrets:
 
 # Creates a username that needs to be copied to the secret file
 echo -n 'username' | base64
@@ -118,31 +151,18 @@ kubectl apply -f <secret file name>
 # Lists the secrets component details
 kubectl get secret
 
-# Create a configmap from a configuration file
+
+ConfigMap:
+
+# Creates a configmap from a configuration file
+kubectl create -f <configmap file name>
 kubectl apply -f <configmap file name>
 
 # Lists the configmap component details
 kubectl get configmap
 
-# Create a deployment from a configuration file
-kubectl apply -f <deployment file name>
 
-# Lists continuously updating list of pods in the Kubernetes cluster
-kubectl get pod --watch
-
-# To see all the component from the same types e.g. mongodb
-Linux terminal:
-kubectl get all | grep <component name>
-kubectl get all | grep mongodb
-Windows cmd:
-kubectl get all | findstr <component name>
-kubectl get all | findstr mongodb
-
-# Assigns an exteranl ip address to a service in order to be able to browse with it
-minikube service <service name>
-
-# Deletes a deployment from a configuration file
-kubectl delete -f <file name>
+Namespaces:
 
 # Creates a namespace 
 kubectl create namespace <namespace name>
@@ -179,12 +199,8 @@ kubectl apply -f <component file name> --namespace=my-namespace
 e.g.
 kubectl apply -f mongo-configmap.yaml --namespace=<namespace name>
 
-# Applies changes made on a file
-kubectl replace -f <file name>
 
-# Changes the number of the replicasets
-kubectl scale --replicas=<number> -f <file name>
-kubectl scale --replicas=<number> replicaset <replica's name>
+Ingress:
 
 # Starts and configures the k8s nginx implemetation of ingree controller
 minikube addons enable ingress
@@ -201,8 +217,8 @@ kubectl get ingress -n <namespace name> --watch
 # Lists more details about an ingress configured in a specifc namespace
 kubectl describe ingress <ingress name> -n <namespace name>
 
-# To see your cluster configuration
-kubectl config view
+
+Helm:
 
 # To search for a deployment (as well as in helm hub site)
 helm search <keyword>
@@ -222,8 +238,39 @@ helm install --value=<value file name> <chart name>
 # Installs helm with a specific version
 helm install --set version=<version number>
 
+
+
+
+General commands:
+
+# Lists all the components created in the cluster
+kubectl get all
+
+# To get more details about certain components
+kubectl describe <component name> <component instance name>
+
+# Creates a component depending on the file content
+kubectl create -f <file name>
+
+# Creates / updates a component depending on the file content
+kubectl apply -f <file name>
+
+# Applies changes made on a file
+kubectl replace -f <file name>
+
+# Deletes a component
+kubectl delete <component> <component name>
+
 # Lists all running processes to filter the string kube-scheduler
 Linux:
 ps -aux | grep kube-scheduler
 Windows
 tasklist /v | findstr kube-scheduler
+
+# To see all the component from the same types e.g. mongodb
+Linux terminal:
+kubectl get all | grep <component name>
+kubectl get all | grep mongodb
+Windows cmd:
+kubectl get all | findstr <component name>
+kubectl get all | findstr mongodb
