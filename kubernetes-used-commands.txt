@@ -198,6 +198,9 @@ kubectl get ingress -n <namespace name> --watch
 # Lists more details about an ingress configured in a specifc namespace
 kubectl describe ingress <ingress name> -n <namespace name>
 
+# To see your cluster configuration
+kubectl config view
+
 # To search for a deployment (as well as in helm hub site)
 helm search <keyword>
 
