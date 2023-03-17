@@ -1,0 +1,9 @@
+
+# Updates a cluster in kubeconfig file
+aws eks --profile <aws config profile name> --region=us-east-1 update-kubeconfig --name <cluster_name>
+
+# Lists the currently configured configmap
+kubectl get configmap aws-auth -n kube-system  -o yaml
+
+# Verify your current identity
+aws sts --profile <aws config profile name> get-caller-identity
