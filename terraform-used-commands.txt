@@ -19,6 +19,16 @@ terraform show
 # Lists the resources in your configuration
 terraform state list
 
+# Shows the diffrence of changes between the original and formatted versions (doesn't format it)
+terraform fmt -diff
+terraform fmt -diff <file name>
+terraform fmt -diff <folder name>
+
+# Rewrites (format) terraform configuration files to a canonical format and style (by default it scans the current directory)
+terraform fmt  #(formats all the files in the current directory)
+terraform fmt -target=<file name>
+terraform fmt -target=<folder name>
+
 # Cleans up your infrastructure
 terraform destroy
 
