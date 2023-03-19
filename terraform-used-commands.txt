@@ -7,6 +7,9 @@ terraform validate
 # Lists the resources that are going to be created / changed
 terraform plan
 
+# This will save the plan into a readable file called output.txt
+terraform plan -no-color > output.txt
+
 # Creates / changes the provider enviroment's cloud specified
 terraform apply
 
@@ -18,6 +21,16 @@ terraform show
 
 # Lists the resources in your configuration
 terraform state list
+
+# To see the output of the formated file
+terraform fmt -write=false
+terraform fmt -write=false <file name>
+terraform fmt -write=false <folder name>
+
+# To apply the standard formatting
+terraform fmt -write
+terraform fmt -write <file name>
+terraform fmt -write <folder name>
 
 # Shows the diffrence of changes between the original and formatted versions (doesn't format it)
 terraform fmt -diff
