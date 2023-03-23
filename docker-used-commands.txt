@@ -70,6 +70,10 @@ docker run -d --name <Name> <Image Name>
 # Entering the container with interactive mode with bash
 docker exec -it <CONTAINER ID/NAME> /bin/bash
 
+# Entering the container with interactive mode with bash as root user
+docker exec --interactive --tty --user root <CONTAINER ID/NAME> bash
+docker container exec -u 0 -it <CONTAINER ID/NAME> bash
+
 # Entering the container with interactive mode with shell
 docker exec -it <CONTAINER ID/NAME> /bin/sh
 
