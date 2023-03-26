@@ -8,7 +8,7 @@ terraform validate
 terraform plan
 
 # This will save the plan into a readable file called output.txt
-terraform plan -no-color > output.txt
+terraform plan -no-color > plan_output.txt
 
 # Creates / changes the provider enviroment's cloud specified
 terraform apply
