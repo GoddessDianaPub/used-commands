@@ -1,4 +1,7 @@
 
-
+# To change the file name
 mv -T <current file name> <new file name>
+
+# To check internet connectivity in an instance
+curl -Is  http://www.google.com | head -n 1
 
