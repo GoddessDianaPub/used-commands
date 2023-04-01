@@ -272,6 +272,45 @@ kubectl get ingress -n <namespace name> --watch
 kubectl describe ingress <ingress name> -n <namespace name>
 
 
+Labels and selectors:
+
+# Lists all the pods in a specific pod label
+kubectl get pod --selector <key>=<value>
+
+# Lists all the pods without the headers in a specific pod label
+kubectl get pod --selector <key>=<value> --no-headers
+
+# Shows the number of pods we have in a specific label (without the headers)
+kubectl get pod --selector <key>=<value> --no-headers | wc -l
+
+# Lists all the opbjects in a specific label
+kubectl get all --selector <key>=<value>
+
+# Lists all the opbjects without the headers in a specific label
+kubectl get all --selector <key>=<value> --no-headers
+
+# Shows the number of opbjects we have in a specific label (without the headers)
+kubectl get all --selector <key>=<value> --no-headers | wc -l
+
+# Lists the same pod that is in a few labels
+kubectl get all --selector <key>=<value>,<key>=<value>,<key>=<value>,etc
+
+
+Tolerations (pod level) and Taints (node level) - taint-effect options: NoSchedule, PreferNoSchedule, NoExecute
+
+# Configuring a pod with a specific taint-effect can be done with files only
+# Configures the node with a specific taint-effect
+kubectl taint nodes <node name> <key>=<value>:<taint-effect>
+
+# To see taints configured on nodes
+kubectl describe node <node name> | grep Taint
+
+For windows:
+kubectl describe node <node name> | findstr Taint
+
+# Removes a taint from a node
+kubectl taint nodes <node name> <key>=<value>:<taint-effect>-
+
 Helm:
 
 # To search for a deployment (as well as in helm hub site)
