@@ -49,10 +49,17 @@ kubectl cluster-info
 # To see your cluster configuration
 kubectl config view
 
-# To delete a cluster
+# To unset a cluster
 kubectl config unset users.<users cluster name>
 kubectl config unset contexts.<contexts cluster name>
 kubectl config unset clusters.<cluster name>
+
+
+#To view the clusters that configured
+kubectl config get-contexts
+
+#To delete a cluster
+kubectl config delete-context <cluster context name>
 
 
 Nodes:
