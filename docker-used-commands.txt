@@ -135,3 +135,5 @@ aws ecr get-login-password --profile docker --region us-east-1 | docker login --
 docker tag my-app:latest 735911875499.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
 docker push 735911875499.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
 
+#For non interactive login
+sudo docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 735911875499.dkr.ecr.us-east-1.amazonaws.com
