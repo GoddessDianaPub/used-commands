@@ -66,3 +66,12 @@ terraform destroy -target="aws_s3_bucket_object.objects[2]"
 # Destroys the entire collection of bucket objects resources at once in your infrastructure
 terraform destroy -target="aws_s3_object.objects"
 
+
+
+Terrafom Cloud
+
+#To access terraform cloud locally you need:
+terraform init
+terraform login
+terraform state list
+terraform state rm RESOURCE.ADDRESS
