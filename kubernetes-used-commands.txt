@@ -34,6 +34,10 @@ kubectl version --output=json
 # Lists the ip address of our minikube
 minikube ip
 
+#To start a new minikube
+minikube delete
+minikube start
+
 
 #Clusters:
 
@@ -301,6 +305,9 @@ kubectl get all --selector <key>=<value> --no-headers | wc -l
 
 # Lists the same pod that is in a few labels
 kubectl get all --selector <key>=<value>,<key>=<value>,<key>=<value>,etc
+
+# To label a node
+kubectl label node <node name> <key>=<value>
 
 
 Tolerations (pod level) and Taints (node level) - taint-effect options: NoSchedule, PreferNoSchedule, NoExecute
