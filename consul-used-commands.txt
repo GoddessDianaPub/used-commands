@@ -1,0 +1,13 @@
+
+
+sudo apt install net-tools
+netstat -anp | grep 8500
+
+
+grep consul /var/log/syslog
+
+sudo systemctl status consul.service
+
+sudo systemctl start consul.service
+
+sudo systemctl status dnsmasq.service
