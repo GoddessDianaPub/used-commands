@@ -325,6 +325,7 @@ kubectl describe node <node name> | findstr Taint
 # Removes a taint from a node
 kubectl taint nodes <node name> <key>=<value>:<taint-effect>-
 
+
 Helm:
 
 # To search for a deployment (as well as in helm hub site)
