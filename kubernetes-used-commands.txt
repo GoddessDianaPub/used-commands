@@ -220,13 +220,14 @@ kubectl create namespace <namespace name>
 
 # Lists the namespaces in the cluster (depends on "kubectx" command)
 kubens
+kubectl config get-contexts
 
 # Changes the default namespace to whatever you want
 kubens <namespace name>
 e.g.
 kubens my-namespace
 or
-kubectl config set-contex $(kubectl config current-contex) --namespace=<namespace name>
+kubectl config set-contex --namespace=<namespace name>
 
 # Lists all the components that are not part of any namespace
 kubectl api-resources --namespaced=false
