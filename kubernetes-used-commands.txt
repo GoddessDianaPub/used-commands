@@ -39,19 +39,37 @@ minikube delete
 minikube start
 
 
-#Clusters:
+ETCD
+# To view the etcd info
+kubectl get pods -n kube-system | grep etcd
+For windows:
+kubectl get pods -n kube-system | findstr etcd
+
+#ssh to the cluster pod:
+ls /etc/kubernetes/manifests/ | grep -i etcd
+
+kubectl describe  pods -n kube-system etcd-cluster1-controlplane  | grep advertise-client-urls
+kubectl describe  pods -n kube-system etcd-cluster1-controlplane  | grep pki
+
+
+
+Clusters:
 
 # To add a cluster to kubeconfig file
 aws eks --region=us-east-1 update-kubeconfig --name <cluster_name>
 
-# Choose a different cluster
-kubectx
+# To switch between clusters
+kubectx <cluster name>
+kubectl config use-context <cluster name>
 
 # A configmap which contains cluster information
 kubectl cluster-info
 
-# To see your cluster configuration
+# To see your clusters configuration
 kubectl config view
+
+# To see your clusters configuredscp cluster1-controlplane:/opt/cluster1.db /opt
+kubectl config get-clusters
 
 # To unset a cluster
 kubectl config unset users.<users cluster name>
@@ -64,6 +82,19 @@ kubectl config get-contexts
 
 #To delete a cluster
 kubectl config delete-context <cluster context name>
+
+
+Updates
+
+#To make the node unscheduled and move all the pods to another nodes
+kubectl drain <node name>
+kubectl drain <node name> --ignore-daemonsets
+
+# To make the node unscheduled without moving the pods to another nodes
+kubectl cordon <node name>
+
+# To configure the node back to be scheduled
+kubectl uncordon <node name>
 
 
 Nodes:
@@ -103,14 +134,20 @@ kubectl run <pod name> -l <label:value> --image=<image name>
 # Generates POD Manifest YAML file (-o yaml), it doesn't create it(--dry-run=client)
 kubectl run <pod name> --image=<image name> --dry-run=client -o yaml
 
+# Generates POD Manifest YAML file (-o yaml), to a yaml file
+kubectl run <pod name> --image=<image name> --dry-run=client -o yaml > <file-name>.yaml
+
 # Opens a terminal in the pod
 kubectl exec -it <pod name> -- bin/bash
 
-# To string the logs about a pod
-kubectl logs <pod name> -f
+# To view the logs about a pod
+kubectl logs <pod name>
 
 # Creates a service with a specific pod and expose it to the external network (default port is 80)
 kubectl expose pod <pod name> --port=<port number> --name <service name>
+
+# To view the logs about an init container in a pod
+kubectl logs <pod name> -c <init container name>
 
 
 Deployments (deploy):
@@ -186,17 +223,30 @@ kubectl create svc <service name>
 
 Secrets:
 
-# Creates a username that needs to be copied to the secret file
+# Creates encoded username that needs to be copied to the secret file
 echo -n 'username' | base64
 
-# Creates a password that needs to be copied to the secret file
+# Creates encoded password that needs to be copied to the secret file
 echo -n 'password' | base64
+
+# To decode username
+echo -n 'username' | base64 --decode
+
+# To decoded password
+echo -n 'password' | base64 --decode
 
 # Create a secret component from a secret configuration file
 kubectl apply -f <secret file name>
 
 # Lists the secrets component details
 kubectl get secret
+
+# To view details about secrets without the values
+kubectl describe secret <secret file name>
+
+# To view details about secrets with the values
+kubectl get secret <secret file name> -o yaml
+
 
 
 ConfigMap:
@@ -207,6 +257,7 @@ kubectl apply -f <configmap file name>
 
 # Lists the configmap component details
 kubectl get configmap
+kubectl get cm
 
 
 Namespaces (ns/n):
@@ -263,6 +314,9 @@ e.g.
 kubectl apply -f mongo-configmap.yaml --namespace=<namespace name>
 
 # To limit resources in a sprcific namespace you need to create a Resource Quota
+
+#To view the logs for the pod
+kubectl -n <namespace name> exec -it <pod name> -- cat /log/app.log
 
 
 Ingress:
@@ -346,6 +400,30 @@ helm install --value=<value file name> <chart name>
 # Installs helm with a specific version
 helm install --set version=<version number>
 
+
+Monitoring
+
+# To add metrics server
+minikube addons enable metrics-server
+#For all other clusters:
+git clone https://github.com/kubernetes-sigs/metrics-server.git
+
+#View performance metrics on nodes
+kubectl top node 
+
+#View performance metrics on pods
+kubectl top pod
+
+
+Rollout
+#View the status
+kubectl rollout status deploy/<deploy name>
+
+#View the history
+kubectl rollout history deploy/<deploy name>
+
+#Undo a chnage
+kubectl rollout undo deploy/<deploy name>
 
 
 General commands:
