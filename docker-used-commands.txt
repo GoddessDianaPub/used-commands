@@ -77,6 +77,9 @@ docker container exec -u 0 -it <CONTAINER ID/NAME> bash
 # Entering the container with interactive mode with shell
 docker exec -it <CONTAINER ID/NAME> /bin/sh
 
+# Lists the current proccess
+ps aux
+
 # Lists the current folder we are in
 pwd
 
@@ -94,6 +97,15 @@ docker network ls
 
 # Creates a docker network (preferable to include "network" in the name)
 docker network create <Network Name>
+
+# To add a specific permission privileges to container 
+docker run --cap-add <permissions name> <image name>
+
+# To remove a specific permission privileges to container
+docker run --cap-drop <permissions name> <image name>
+
+# To run a container with all permission privileges
+docker run --privileged <image name>
 
 # Creates a running container with port binding, a specific container name, assigns it to a specific container network and with the latest version
 docker run -d -p<localhost port:Service port> --name <Name> --net <Network Name> <Image Name>
@@ -137,3 +149,23 @@ docker push 735911875499.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
 
 #For non interactive login
 sudo docker login -u AWS -p $(aws ecr get-login-password --region us-east-1) 735911875499.dkr.ecr.us-east-1.amazonaws.com
+
+# To login to docker private registry
+docker login <private registry name>
+
+# To run a container with image from our private registry
+docker run <private registry name>/<image name>
+
+
+Volumes
+
+# To create a new mounted volume
+docker volume create <volume name>
+
+# To create a container with a mounted volume - volume mount
+#Default volune usually will be: /var/lib/docker/volumes
+docker run -v <volume name>:/path/to/volume <image name>
+
+# To mount a volume in an external folder - bind mount
+docker run -v /path/to/folder:/default/path/to/folder <image name>
+docker run --mount type=bind,source=/path/to/folder,target=/default/path/to/folder <image name>
