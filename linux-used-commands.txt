@@ -11,7 +11,7 @@ systemctl status nginx
 # Lists nginx services
 ps -ef | grep nginx
 
-# Checks ngingx version
+# Checks nginx version
 nginx -v
 
 
