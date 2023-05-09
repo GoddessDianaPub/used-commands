@@ -39,6 +39,61 @@ minikube delete
 minikube start
 
 
+TLS and certificates:
+# To generate a certificate using openssl e.g. ca.key
+openssl genrsa -out <cert name>.key 2048
+
+# To generate certificate signing request e.g. ca.csr
+openssl req -new -key <cert name>.key -subj "/<Component name>" -out <cert name>.csr
+#For kubernetes CA it will be:
+openssl req -new -key ca.key -subj "/CN=KUBERNETES-CA" -out ca.csr
+#For admin it will be (CN=kube-admin is a logical name):
+openssl req -new -key admin.key -subj "/CN=kube-admin" -out admin.csr
+#To sgin it to a specific group:
+openssl req -new -key admin.key -subj "/CN=kube-admin/O=system:masters" -out admin.csr
+
+#For kubernetes api server you need to create a .cnf file, with all the k8s DNS names and IPs e.g. openssl.cnf
+openssl req -new -key apiserver.key -subj "/CN=kube-apiserver" -out apiserver.csr -config openssl.cnf
+
+# To sign the certificate created, e.g. ca.crt
+#For kubernetes ca we use self sign
+openssl x509 -req -in ca.csr -signkey ca.key -out <name>.crt
+#For admin we use the CA crt:
+openssl x509 -req -in admin.csr -CA ca.crt -CAkey ca.key -out admin.crt
+#For apiserver we use the CA crt:
+openssl x509 -req -in apiserver.csr -CA ca.crt -CAkey ca.key -out apiserver.crt
+
+# To view a certificate detailes
+openssl x509 -in /etc/kubernetes/pki/<cert name>.crt -text -noout
+
+# To view the etcd service logs
+journalctl -u etcd.service -l
+
+# To view the signing requests
+kubectl get csr
+
+# To view the signing requests content
+kubectl get csr <request name> -o yaml
+
+# To delete the csr request
+kubectl delete csr <request name>
+
+# To approve the csr request
+kubectl certificate approve <request name>
+
+# To reject the csr request
+kubectl certificate deny <request name>
+
+# To view the certificate content
+kubectl get csr <request name> -o yaml
+
+# To get the certificate content in base64 format and in one line
+cat <file name> | base64 -w 0
+
+# To decode the certificate
+echo "<3 first chars>...<3 last chars>" | base64 --decode
+
+
 ETCD
 # To view the etcd info
 kubectl get pods -n kube-system | grep etcd
@@ -62,11 +117,21 @@ aws eks --region=us-east-1 update-kubeconfig --name <cluster_name>
 kubectx <cluster name>
 kubectl config use-context <cluster name>
 
+# To see current context:
+kubectx -c
+
+# To switch back to previous context:
+kubectx -
+
 # A configmap which contains cluster information
 kubectl cluster-info
 
 # To see your clusters configuration
 kubectl config view
+
+# To choose a different contex
+kubectl config use-contex <context name>
+kubectl config --kubeconfig=/path/to/file use-contex <context name>
 
 # To see your clusters configuredscp cluster1-controlplane:/opt/cluster1.db /opt
 kubectl config get-clusters
@@ -76,9 +141,8 @@ kubectl config unset users.<users cluster name>
 kubectl config unset contexts.<contexts cluster name>
 kubectl config unset clusters.<cluster name>
 
-
 #To view the clusters that configured
-kubectl config get-contexts
+kubectl config get-contexts 
 
 #To delete a cluster
 kubectl config delete-context <cluster context name>
@@ -97,6 +161,49 @@ kubectl cordon <node name>
 kubectl uncordon <node name>
 
 
+
+Persistent Volumes (pv), Persistent Volumes Claims (pvc), Storage Class (sc)
+
+# Lists all the persistent volumes
+kubectl get persistentvolume
+
+# Lists all the persistent volumes claims
+kubectl get persistentvolumeclaim
+
+# Deletes an existing pvc
+kubectl delete persistentvolumeclaim <pvc name>
+
+# Lists all the storage classes
+kubectl get storageclass
+
+
+Service Accounts:
+
+# Lists all the service accounts
+kubectl get sa
+
+# Shows more detailes about a service account
+kubectl describe sa <sa name>
+
+# Lists sa secret's token
+kubectl describe secret <sa name>-token-kbbdm
+
+# Lists the files including the token file
+kubectl exec -it <pod name> --ls <Mounts path>
+e.g.
+kubectl exec -it kandula-app --ls /var/run/secrets/kubernetes.io/serviceaccount
+
+# To view the token content
+kubectl exec -it kandula-app cat /var/run/secrets/kubernetes.io/serviceaccount/token
+
+# Creates a service account yaml file
+kubectl create sa <sa name> --dry-run=client -o yaml > <file name>.yaml
+
+# To create a token for sa
+kubectl create token <sa name>
+
+
+
 Nodes:
 
 # Displys all the nodes in the cluster
@@ -107,7 +214,8 @@ kubectl get node -o wide
 kubectl describe node <node name>
 
 
-Pods:
+
+Pods (po):
 
 # Lists the available components in the pod
 kubectl get pod
@@ -148,6 +256,7 @@ kubectl expose pod <pod name> --port=<port number> --name <service name>
 
 # To view the logs about an init container in a pod
 kubectl logs <pod name> -c <init container name>
+
 
 
 Deployments (deploy):
@@ -205,6 +314,7 @@ kubectl scale --replicas=<number> -f <file name>
 kubectl scale --replicas=<number> replicaset <replica's name>
 
 
+
 Services (svc)
 
 # Lists all the configuration we created in the cluster with wide details using service/svc
@@ -219,6 +329,7 @@ minikube service <service name>
 
 # Creates a service
 kubectl create svc <service name>
+
 
 
 Secrets:
@@ -238,6 +349,9 @@ echo -n 'password' | base64 --decode
 # Create a secret component from a secret configuration file
 kubectl apply -f <secret file name>
 
+# Lists secret types
+kubectl create secret
+
 # Lists the secrets component details
 kubectl get secret
 
@@ -246,6 +360,63 @@ kubectl describe secret <secret file name>
 
 # To view details about secrets with the values
 kubectl get secret <secret file name> -o yaml
+
+# To create a secret for private registry login use docker-registry secret type
+kubectl create secret <secret type name> <secret name> \ 
+    --docker-server=<server name>  \
+    --docker-username=<useranem>  \
+    --docker-password=<password>  \
+	--docker-email=<email address>
+
+# To view the user that execute a specific process in a pod
+kubectl exec <pod name> -- whoami
+
+
+
+Roles, RolBindings, ClusterRoles and ClusterRolBindings:
+
+# Lists the roles
+kubectl get roles
+kubectl get roles -n <namespace name>
+
+# Lists more details about a role
+kubectl describe role <role name>
+kubectl describe role <role name> -n <namespace name>
+
+# Lists the RolesBindings
+kubectl get rolebindings
+
+# Lists more details about a RoleBinding
+kubectl describe rolebinding <rolebinding name>
+
+# Lists the ClusterRoles
+kubectl get clusterroles
+kubectl get clusterroles --no-headers | wc -l
+kubectl get clusterroles --no-headers -o json | jq '.items | length'
+
+# Lists more details about a ClusterRole
+kubectl describe clusterrole <clusterrole name>
+
+# Lists the ClusterRolesBindings
+kubectl get clusterrolebindings
+kubectl get clusterrolebindings --no-headers | wc -l
+
+# Lists more details about a ClusterRoleBinding
+kubectl describe clusterrolebinding <clusterrolebinding name>
+
+# User role/clusterRole check
+kubectl auth can-i <permissions> <component name>
+kubectl auth can-i <permissions> <component name> -n <namespace name>
+e.g.
+kubectl auth can-i create deploy
+kubectl auth can-i delete node --namespace test
+
+# Checks other users permissions
+kubectl auth can-i <permissions> <component name> --as <user>
+kubectl auth can-i <permissions> <component name> --as <user> -n <namespace name>
+e.g.
+kubectl auth can-i create deploy --as dev-user
+kubectl auth can-i delete pod --as dev-user -n test
 
 
 
@@ -258,6 +429,7 @@ kubectl apply -f <configmap file name>
 # Lists the configmap component details
 kubectl get configmap
 kubectl get cm
+
 
 
 Namespaces (ns/n):
@@ -273,12 +445,18 @@ kubectl create namespace <namespace name>
 kubens
 kubectl config get-contexts
 
+# To switch back to previous namespace
+kubens -
+
 # Changes the default namespace to whatever you want
 kubens <namespace name>
 e.g.
 kubens my-namespace
 or
 kubectl config set-contex --namespace=<namespace name>
+
+# Lists all the components
+kubectl api-resources
 
 # Lists all the components that are not part of any namespace
 kubectl api-resources --namespaced=false
@@ -320,6 +498,7 @@ kubectl apply -f mongo-configmap.yaml --namespace=<namespace name>
 kubectl -n <namespace name> exec -it <pod name> -- cat /log/app.log
 
 
+
 Ingress:
 
 # Starts and configures the k8s nginx implemetation of ingree controller
@@ -336,6 +515,37 @@ kubectl get ingress -n <namespace name> --watch
 
 # Lists more details about an ingress configured in a specifc namespace
 kubectl describe ingress <ingress name> -n <namespace name>
+
+
+
+Egress:
+# Lists the engress configured
+kubectl get engress
+
+# Lists the engress configured in a specifc namespace
+kubectl get engress -n <namespace name>
+
+# Watchs the engress configured in a specifc namespace
+kubectl get engress -n <namespace name> --watch
+
+# Lists more details about an engress configured in a specifc namespace
+kubectl describe engress <engress name> -n <namespace name>
+
+
+
+Network policy (netpol):
+
+# Lists the network policies configured
+kubectl get networkpolicy
+kubectl get netpol
+
+# Lists the network policies configured in a specifc namespace
+kubectl get netpol -n <namespace name>
+
+# Lists more details about network policies configured in a specifc namespace
+kubectl describe netpol <engress name> -n <namespace name>
+
+
 
 
 Labels and selectors:
@@ -365,6 +575,7 @@ kubectl get all --selector <key>=<value>,<key>=<value>,<key>=<value>,etc
 kubectl label node <node name> <key>=<value>
 
 
+
 Tolerations (pod level) and Taints (node level) - taint-effect options: NoSchedule, PreferNoSchedule, NoExecute
 
 # Configuring a pod with a specific taint-effect can be done with files only
@@ -379,6 +590,7 @@ kubectl describe node <node name> | findstr Taint
 
 # Removes a taint from a node
 kubectl taint nodes <node name> <key>=<value>:<taint-effect>-
+
 
 
 Helm:
@@ -402,6 +614,7 @@ helm install --value=<value file name> <chart name>
 helm install --set version=<version number>
 
 
+
 Monitoring
 
 # To add metrics server
@@ -416,7 +629,9 @@ kubectl top node
 kubectl top pod
 
 
+
 Rollout
+
 #View the status
 kubectl rollout status deploy/<deploy name>
 
@@ -425,6 +640,7 @@ kubectl rollout history deploy/<deploy name>
 
 #Undo a chnage
 kubectl rollout undo deploy/<deploy name>
+
 
 
 General commands:
@@ -469,3 +685,19 @@ kubectl get all | grep mongodb
 Windows cmd:
 kubectl get all | findstr <component name>
 kubectl get all | findstr mongodb
+
+# To list all available apis at root (uses the current credentials)
+kubectl proxy
+curl http://localhost:8001 -k
+
+# Lists all the opbjects without the headers in a specific component
+kubectl get all --<component name> --no-headers
+
+# Lists all the opbjects without the headers in a specific component in all ns
+kubectl get --<component name> -A --no-headers
+
+# Shows the number of opbjects we have in a specific component (without the headers)
+kubectl get all --<component name> --no-headers | wc -l
+
+# Shows the number of opbjects we have in a specific component (without the headers) in all ns
+kubectl get --<component name> -A --no-headers | wc -l
