@@ -15,3 +15,160 @@ ps -ef | grep nginx
 nginx -v
 
 
+
+Networking:
+
+# Lists all open TCP ports
+netstat -plnt
+
+# To see the network adapter
+ip addr show
+
+# To view all the network interfaces on your system 
+ip link show
+ip link
+
+# Lists all the info fo a specific interface
+ip link show <interface name>
+
+# To see the ip address assigned to the interfaces
+ip addr
+
+# Lists info of a specific network type (e.g. bridge)
+ip addr show type <network type>
+
+# To see the ip address assigned to the interfaces within a namespace
+ip -n <network namnespace> addr
+
+# To temporarily set ip address on the interfaces
+ip addr add <cidr> <name> <interface name>
+
+# To show the route table on a computer
+ip route
+route
+
+# To temporarily add a new route
+ip route add <cidr> via <cidr>
+
+# To show f forwarding is enabled 0 = disable, 1 = enable
+cat /proc/sys/net/ipv4/ip_forward
+
+# To temporarily change the forward configurations
+echo 0/1 > /proc/sys/net/ipv4/ip_forward
+
+# To permanantly change the forwarding settings
+echo 0/1 > /etc/sysctl.conf
+net.ipv4.ip_forward = 0/1
+
+# Creates a network namespace
+ip netns add <network namne>
+
+# Lists the network namespaces
+ip netns
+
+# To lists network interfaces within a specific network namespace
+ip netns exec <network namne> ip link
+ip -n <network namnespace> link
+
+# Lists the network entries
+arp
+
+# Lists the network entries within a network namespace
+ip netns exec <network namnespace> arp
+
+# To show the route table on a computer within a network namespace
+ip netns exec <network namnespace> route
+
+# To create a virtual cable between 2 interfaces
+ip link add <virtual network namne1> type veth peer name <virtual network namne2>
+
+# To attach each veth interface to the appropriate namespace
+ip link set <virtual network namne1> netns <network namnespace1>
+ip link set <virtual network namne2> netns <network namnespace2>
+
+# To temporarily set ip address on the interfaces within a network namespace
+ip -n <network namnespace1> addr add <cidr> <interface name> <virtual network namne1>
+ip -n <network namnespace2> addr add <cidr> <interface name> <virtual network namne2>
+
+# To start the virtual network interfaces
+ip -n <network namnespace1> link set <virtual network namne1> up
+ip -n <network namnespace2> link set <virtual network namne2> up
+
+# Deletes the link virtual cables - it deletes both links
+ip -n <network namnespace1> link del <virtual network namne1>
+
+# To create a virtual interface from type bridge
+ip link add <virtual network namne> type bridge
+
+# Creatse a virtual cable to connet with the bridge interface
+ip link add <virtual network namne1> type veth peer name <bridge virtual network namne1>
+ip link add <virtual network namne2> type veth peer name <bridge virtual network namne2>
+
+# To attach each veth interface to the virtual bridge network
+ip link set <virtual network namne1> netns <network namnespace1>
+ip link set <bridge virtual network namne1> master <interface name>
+
+ip link set <virtual network namne2> netns <network namnespace2>
+ip link set <bridge virtual network namne2> master <interface name>
+
+# To temporarily set ip address on the interfaces within a network namespace
+ip -n <network namnespace1> addr add <cidr> <interface name> <virtual network namne1>
+ip -n <network namnespace2> addr add <cidr> <interface name> <virtual network namne2>
+
+# To start the virtual network interfaces
+ip -n <network namnespace1> link set <virtual network namne1> up
+ip -n <network namnespace2> link set <virtual network namne2> up
+
+# To add a rule in iptable e.g.
+iptables -t nat -A PREROUTING -j DNAT --dport 8080 --to-destination 80
+
+# Docker does it as well
+iptables -t nat -A DOCKER -j DNAT --dport 8080 --to-destination <ip>:80
+
+# Lists the table roles
+iptables -nvL -t nat
+
+
+
+DNS:
+
+# To lists all hosts in the DNS server
+cat /etc/resolv.conf
+
+# You can configure on the hosts, to forward resolution to a public DNS
+Forward All to 8.8.8.8
+
+# To configure to ping a name:
+<nameserver>	<ip address>
+
+# To configure to append a name that is part of subdomain (multiple subdomains can be configured)
+search	<subdomain name> <subdomain name>
+e.g.
+192.168.1.10	web.mycompany.com
+search	        mycompany.com prod.mycompany.com
+ping web
+
+# To change the default hosts file
+cat /etc/nsswitch.conf
+
+# To query a dns server host
+nslookup <website address>
+
+# To test dns name resolutions
+dig <website address>
+
+
+
+OpenVPN
+
+# Validates the server.conf file
+sudo openvpn --config /etc/openvpn/server.conf
+
+# View the openvpn service status
+sudo systemctl status openvpn@server
+
+# Starts the openvpn service status
+sudo systemctl start openvpn@server
+
+# Starts VPN from a conf file
+sudo openvpn --config diana-local.ovpn
