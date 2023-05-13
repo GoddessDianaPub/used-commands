@@ -1,0 +1,1 @@
+C:\ProgramData\env_containers_programs\grafana-9.5.1\bin>grafana-server.exe
