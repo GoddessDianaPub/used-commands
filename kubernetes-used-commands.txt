@@ -3,6 +3,8 @@
 
 About Cluster:
 
+## The resources are deployed in kube-system namespace ##
+
 # To see what you can do with minikube
 minikube
 
@@ -38,8 +40,14 @@ minikube ip
 minikube delete
 minikube start
 
+# To check with cgroup driver is being used
+ps -p 1
+
+
+
 
 TLS and certificates:
+
 # To generate a certificate using openssl e.g. ca.key
 openssl genrsa -out <cert name>.key 2048
 
@@ -94,7 +102,12 @@ cat <file name> | base64 -w 0
 echo "<3 first chars>...<3 last chars>" | base64 --decode
 
 
+
 ETCD
+
+# etcd config file path
+/etc/kubernetes/manifests/etcd.yaml
+
 # To view the etcd info
 kubectl get pods -n kube-system | grep etcd
 For windows:
@@ -103,8 +116,15 @@ kubectl get pods -n kube-system | findstr etcd
 #ssh to the cluster pod:
 ls /etc/kubernetes/manifests/ | grep -i etcd
 
-kubectl describe  pods -n kube-system etcd-cluster1-controlplane  | grep advertise-client-urls
-kubectl describe  pods -n kube-system etcd-cluster1-controlplane  | grep pki
+# View details about advertise-client-urls and pki
+kubectl describe pod -n kube-system etcd-cluster1-controlplane  | grep advertise-client-urls
+kubectl describe pod -n kube-system etcd-cluster1-controlplane  | grep pki
+
+# To backup the cluster to a file
+ETCDCTL_API=3 etcdctl --endpoints <endpoint ip>:<endpoint port> snapshot save <file name>.db \
+	--cacert=<ca.crt file path> \
+	--cert=<server.crt file path> \
+	--key=<server.key file path>
 
 
 
@@ -148,6 +168,7 @@ kubectl config get-contexts
 kubectl config delete-context <cluster context name>
 
 
+
 Updates
 
 #To make the node unscheduled and move all the pods to another nodes
@@ -175,6 +196,7 @@ kubectl delete persistentvolumeclaim <pvc name>
 
 # Lists all the storage classes
 kubectl get storageclass
+
 
 
 Service Accounts:
@@ -206,12 +228,18 @@ kubectl create token <sa name>
 
 Nodes:
 
-# Displys all the nodes in the cluster
+# Displays all the nodes in the cluster
 kubectl get node
 
 # Lists wide details about the node as well as the ip address of our minikube
 kubectl get node -o wide
 kubectl describe node <node name>
+
+# Access the super config file
+kubectl get nodes --kubeconfig /path/to/the/file
+e.g.
+kubectl get nodes --kubeconfig /root/CKA/super.kubeconfig
+
 
 
 
@@ -229,6 +257,9 @@ kubectl get pod --watch
 # Lists wide details about the available components in the pod
 kubectl get pod -o wide
 kubectl describe pod <pod name>
+
+# Lists the pod labels
+kubectl get pod --show-labels
 
 # To see how you can create a pod
 kubectl create -h
@@ -248,14 +279,24 @@ kubectl run <pod name> --image=<image name> --dry-run=client -o yaml > <file-nam
 # Opens a terminal in the pod
 kubectl exec -it <pod name> -- bin/bash
 
+# To create a temporarily curl pod with a terminal
+kubectl run curl --image=alpine/curl --rm -it -- sh
+
 # To view the logs about a pod
 kubectl logs <pod name>
+
+# To view a log with watch
+kubectl logs <pod name> -f
+
+# To view logs of a previous pod
+kubectl logs <pod name> -f --previous
 
 # Creates a service with a specific pod and expose it to the external network (default port is 80)
 kubectl expose pod <pod name> --port=<port number> --name <service name>
 
 # To view the logs about an init container in a pod
 kubectl logs <pod name> -c <init container name>
+
 
 
 
@@ -420,7 +461,7 @@ kubectl auth can-i delete pod --as dev-user -n test
 
 
 
-ConfigMap:
+ConfigMap (cm):
 
 # Creates a configmap from a configuration file
 kubectl create -f <configmap file name>
@@ -443,7 +484,7 @@ kubectl create namespace <namespace name>
 
 # Lists the namespaces in the cluster (depends on "kubectx" command)
 kubens
-kubectl config get-contexts
+kubectl get namespace
 
 # To switch back to previous namespace
 kubens -
@@ -453,7 +494,10 @@ kubens <namespace name>
 e.g.
 kubens my-namespace
 or
-kubectl config set-contex --namespace=<namespace name>
+kubectl config set-context --current --namespace=<namespace name>
+
+# To verify the namespace change
+kubectl config view --minify | grep namespace
 
 # Lists all the components
 kubectl api-resources
@@ -499,7 +543,7 @@ kubectl -n <namespace name> exec -it <pod name> -- cat /log/app.log
 
 
 
-Ingress:
+Ingress (ing):
 
 # Starts and configures the k8s nginx implemetation of ingree controller
 minikube addons enable ingress
@@ -519,6 +563,7 @@ kubectl describe ingress <ingress name> -n <namespace name>
 
 
 Egress:
+
 # Lists the engress configured
 kubectl get engress
 
@@ -598,11 +643,20 @@ Helm:
 # To search for a deployment (as well as in helm hub site)
 helm search <keyword>
 
+# To download chart from a repo
+helm pull --untar <repo name>/<release name>
+
 # Installls a chart
-helm install <chart name>
+helm install <release name> <chart path>
 
 # Upgrades helm
 helm upgrade <chart name>
+
+# To list installed packages
+helm list
+
+# To uninstall packages
+helm uninstall <release name>
 
 # Restore to the last previous version (tiller keeps the charts history, available until helm v2)
 helm rollback <chart name>
@@ -612,6 +666,17 @@ helm install --value=<value file name> <chart name>
 
 # Installs helm with a specific version
 helm install --set version=<version number>
+
+# To search in artifact hub repo
+helm search hub <app name>
+
+# To search in different repos
+##First add the repo to your computer
+helm repo add <repo name> <repo url>
+helm search repo <app name>
+
+# To lists existing local repos
+helm repo list
 
 
 
@@ -640,6 +705,135 @@ kubectl rollout history deploy/<deploy name>
 
 #Undo a chnage
 kubectl rollout undo deploy/<deploy name>
+
+
+
+CNI
+
+# To see the cni netwrok and more detailes
+ps -aux | grep kubelet
+
+# Lists all the supportes cni plugins
+ls /opt/cni/bin
+
+# The cni config file path
+ls /etc/cni/net.d
+
+
+
+CoreDNS
+
+# The configuration core file path
+/etc/coredns/Corefile
+/etc/resolv.conf
+
+# The coreDNS is a configmap file
+kubectl get configmap -n kube-system
+
+# Checks the kube-dns service configurations
+kubectl -n kube-system get ep kube-dns
+
+# The configuration file for kube-proxy
+/var/lib/kube-proxy/config.conf
+
+
+
+Troubleshooting
+
+# To check the cluster services status
+service kube-apiserver status
+serivce kube-controller-manager status
+service kube-scheduler status
+service kubelet status
+service kube-proxy status
+
+# Checks the cluster logs
+kubectl logs kube-apiserver-master -n kube-system
+
+# To view the kube-api server logs
+journalctl -u kube-apiserver
+
+# To view the kubelet service logs
+journalctl -u kubelet
+
+# 
+journalctl -u kubelet -f
+
+# Displyas all the running process
+top
+
+# Shows the amount of disk space that is free on file systems
+df -h
+
+# Checks the kubelet certificate status
+openssl x590 -in /var/lib/kubelet/<file name>.crt -text
+
+
+
+JSON Path
+
+# Shows the nodes in json format
+kubectl get node -o json
+
+# Shows the podes in json format
+kubectl get pod -o json
+
+# Lists the path for nodes (jq is a tool) [in windows use "" instead of '']
+kubectl get node -o json | jq -c 'paths'
+kubectl get node -o json | jq -c 'paths'
+kubectl get node -o json | -c 'paths' | grep type
+kubectl get node -o json | -c 'paths' | grep type | grep -v condition
+
+# Pass a pod query in a json path query
+kubectl get pod -o jsonpath='{<query>}'
+kubectl get pod -o jsonpath='{<query>}' | jq
+
+# Lists the nodes name in the cluster
+kubectl get node -o jsonpath='{.items[*].metadata.name}'
+
+# Lists the hardware architecture of the nodes
+kubectl get node -o jsonpath='{.items[*].status.nodeInfo.architecture}'
+
+# Lists the OS image of the nodes and save if to a file
+kubectl get nodes -o jsonpath='{.items[*].status.nodeInfo.osImage}' > /opt/outputs/nodes_os.txt
+
+# Get the usernames from a file
+kubectl config view --kubeconfig=my-kube-config -o jsonpath="{.users[*].name}"
+
+# Identifies the context configured for the aws-user in the my-kube-config context file
+kubectl config view --kubeconfig=my-kube-config -o jsonpath="{.contexts[?(@.context.user=='aws-user')].name}"
+
+# Returns the count of CPUs on these nodes
+kubectl get node -o jsonpath='{.items[*].status.capacity.cpu}'
+
+# Combines the results of 2 queries
+kubectl get node -o jsonpath='{.items[*].metadata.name}{.items[*].status.capacity.cpu}'
+
+# Combines the results of 2 queries, and shows them in 2 new lines
+kubectl get node -o jsonpath='{.items[*].metadata.name}{"\n"}{.items[*].status.capacity.cpu}'
+
+# Combines the results of 2 queries, and shows them with a tab
+kubectl get node -o jsonpath='{.items[*].metadata.name}{"\t"}{.items[*].status.capacity.cpu}'
+
+# This is afunction query to print the each node and cpu nodes in different columns
+kubectl get node -o jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.capacity.cpu}{"\n"}{end}'
+
+# Lists data with custom columns for each resource in the query
+kubectl get <resource name> -o=custom-columns=<column name>:<json path>
+kubectl get <resource name> -o=custom-columns=<column name>:<json path>,<column name>:<json path>
+e.g.
+kubectl get node -o=custom-columns=NODE:.metadata.name
+kubectl get node -o=custom-columns=NODE:.metadata.name,CPU:.status.capacity.cpu
+
+# To sort by the resource values
+kubectl get <resource name> --sort-by=<json path>
+e.g.
+kubectl get node --sort-by=.metadata.name
+kubectl get node --sort-by=.status.capacity.cpu
+
+##Sorts by persistent volume specs
+kubectl get pv --sort-by=.spec.capacity.storage
+kubectl get pv --sort-by=.spec.capacity.storage -o=custom-columns=NAME:.metadata.name,CAPACITY:.spec.capacity.storage
 
 
 
