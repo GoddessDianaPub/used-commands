@@ -1,0 +1,9 @@
+
+# Openning a tunnel to rds from local computer, through bastion
+ssh -i <ssh private file> -N -L 5433:<RDS endpoint>:5432 ec2-user@<bastion ip>
+
+# Openning a tunnel in debug mode to rds from local computer, through bastion
+ssh -i <ssh private file> -N -L 5433:<RDS endpoint>:5432 ec2-user@<bastion ip> -v
+
+# Connecting to the DB
+psql -h localhost -p 5433 -U <username> -d <db name>
