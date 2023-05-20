@@ -3,7 +3,7 @@ git clone
 
 # Change to your repo directory
 cd <repo folder name>
-
+ 
 # Displays the origin remote server name
 git remote -v
 
@@ -26,7 +26,7 @@ git remote add upstream <URL>
 git remote remove upstream
 
 # Sets a different upstream to a repo
-git remote set-url upstream <URL>
+terraform-aws-ansible<URL>
 
 # Lists the branches on the local repository
 git branch
