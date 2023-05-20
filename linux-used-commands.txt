@@ -171,4 +171,16 @@ sudo systemctl status openvpn@server
 sudo systemctl start openvpn@server
 
 # Starts VPN from a conf file
-sudo openvpn --config diana-local.ovpn
+sudo openvpn --config <file name>.ovpn
+
+
+AWS OpenVPN
+
+# Opens a VPN tunnel
+cd /path/to/file/<file name>.ovpn
+
+# Starts a connection with an auto-login profile manually
+openvpn --config <file name>.ovpn
+
+# Starts a connection with a user-locked profile manually
+sudo openvpn --config <file name>.ovpn --auth-user-pass
