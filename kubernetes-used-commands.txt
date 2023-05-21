@@ -686,6 +686,7 @@ Monitoring
 minikube addons enable metrics-server
 #For all other clusters:
 git clone https://github.com/kubernetes-sigs/metrics-server.git
+kubectl create -f <relevant file>
 
 #View performance metrics on nodes
 kubectl top node 
