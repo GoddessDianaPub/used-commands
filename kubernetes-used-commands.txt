@@ -299,6 +299,22 @@ kubectl logs <pod name> -c <init container name>
 
 
 
+Jobs & CronJob
+
+# List the jobs
+kubectl get job
+
+# Deletes a job (as well as the pod created with the job)
+kubectl delete job <job name>
+
+# lists cronjobs
+kubectl get cronjob
+
+# Deletes a cronjob (as well as the pod created with the job)
+kubectl delete cronjob <cronjob name>
+
+
+
 
 Deployments (deploy):
 
@@ -335,6 +351,32 @@ kubectl edit deployment <deploy name>
 
 # Scales the replicas in a deployment
 kubectl scale deployment  --replicas=<number of replicas>
+
+
+
+
+Rollout
+
+# To change the image version of a depployment (not recommended)
+kubectl set image deployment <deploy name> <container name>=<image name:image version>
+
+# To change the image version of a depployment with a record flag (to see the change-cause field)
+kubectl set image deployment <deploy name> <container name>=<image name:image version> --record
+
+# View the status
+kubectl rollout status deploy/<deploy name>
+
+# View the history
+kubectl rollout history deploy/<deploy name>
+
+# To view a specific rolluut revision
+kubectl rollout history deploy/<deploy name> --revision=<revision number>
+
+# Undo a chnage
+kubectl rollout undo deploy/<deploy name>
+
+# To rollback to a specific revision
+kubectl rollout undo deploy/<deploy name> --to-revision=<revision number>
 
 
 
@@ -693,19 +735,6 @@ kubectl top node
 
 #View performance metrics on pods
 kubectl top pod
-
-
-
-Rollout
-
-#View the status
-kubectl rollout status deploy/<deploy name>
-
-#View the history
-kubectl rollout history deploy/<deploy name>
-
-#Undo a chnage
-kubectl rollout undo deploy/<deploy name>
 
 
 
