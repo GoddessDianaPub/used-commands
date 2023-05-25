@@ -101,6 +101,11 @@ cat <file name> | base64 -w 0
 # To decode the certificate
 echo "<3 first chars>...<3 last chars>" | base64 --decode
 
+# Creates a tls secret
+kubectl create secret tls <tls name> \
+  --cert "<path to the existing .crt file>" \
+  --key "<path to the existing .key file>"
+
 
 
 ETCD
@@ -136,6 +141,7 @@ aws eks --region=us-east-1 update-kubeconfig --name <cluster_name>
 # To switch between clusters
 kubectx <cluster name>
 kubectl config use-context <cluster name>
+kubectl config use-context <cluster name> --kubeconfig path/to/config/file
 
 # To see current context:
 kubectx -c
@@ -274,13 +280,19 @@ kubectl run <pod name> -l <label:value> --image=<image name>
 kubectl run <pod name> --image=<image name> --dry-run=client -o yaml
 
 # Generates POD Manifest YAML file (-o yaml), to a yaml file
-kubectl run <pod name> --image=<image name> --dry-run=client -o yaml > <file-name>.yaml
+kubectl run <pod name> --image=<image name> --dry-run=client -oyaml > <file-name>.yaml
 
 # Opens a terminal in the pod
 kubectl exec -it <pod name> -- bin/bash
 
 # To create a temporarily curl pod with a terminal
 kubectl run curl --image=alpine/curl --rm -it -- sh
+
+# To test a connection with a service within a pod (like telnet)
+kubectl exec -it <pod name> -- sh
+nc -v -z -w <timeout in seconds> <service name> <port>
+e.g.
+nc -v -z -w 2 secuere-service 80
 
 # To view the logs about a pod
 kubectl logs <pod name>
@@ -500,6 +512,21 @@ kubectl auth can-i <permissions> <component name> --as <user> -n <namespace name
 e.g.
 kubectl auth can-i create deploy --as dev-user
 kubectl auth can-i delete pod --as dev-user -n test
+
+
+
+Admission Controllers
+
+# Lists he admission controllers enabled by default
+kube-apiserver -h | grep enable-addmission-plugins
+kube-apiserver -h | findstr enable-addmission-plugins
+
+# To list it within the kube-api pod
+kubectl exec -it kube-apiserver-minikube -- kube-apiserver -h | grep "enable-admission-plugins"
+kubectl exec -it kube-apiserver-minikube -- kube-apiserver -h | findstr enable-admission-plugins
+
+# Lists all the enabled and disabled plugins
+ps -ef | grep kube-apiserver | grep addmissionn-plugins
 
 
 
@@ -910,9 +937,27 @@ Windows cmd:
 kubectl get all | findstr <component name>
 kubectl get all | findstr mongodb
 
+# To start a kube proxy in the background
+kubectl proxy <port number>&
+e.g.
+kubectl proxy 8001&
+
+# Lists the api version for authorization
+curl localhost:8001/apis/authorization.k8s.io
+
 # To list all available apis at root (uses the current credentials)
 kubectl proxy
 curl http://localhost:8001 -k
+
+# Lists all the api groups
+curl http://localhost:6443 -k
+
+# Lists all the resource group names
+curl http://localhost:6443/apis -k | grep "name"
+
+# kubeapi file path and version
+/etc/kubernetes/manifests/kube-apiserver.yaml
+--runtime-config=
 
 # Lists all the opbjects without the headers in a specific component
 kubectl get all --<component name> --no-headers
@@ -925,3 +970,20 @@ kubectl get all --<component name> --no-headers | wc -l
 
 # Shows the number of opbjects we have in a specific component (without the headers) in all ns
 kubectl get --<component name> -A --no-headers | wc -l
+
+# Checks the preffered api version configured for a resource from a storage version
+kubectl explain <resource name>
+e.g.
+kubectl explain deploy
+
+# Changes the api version in a yaml file and output the changes (needed to be installed separately)
+kubectl-convert -f <file name> --output-version <new-api>
+e.g.
+kubectl-convert -f nginx.yaml --output-version apps/v1
+
+# You can pass it to a file and re-create it
+kubectl-convert -f <current file name> --output-version <new-api> > <new file name>
+kubectl apply -f <new file name>
+
+# Lists the operators on my cluster
+kubectl get crd
