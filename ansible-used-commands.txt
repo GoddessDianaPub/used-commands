@@ -39,11 +39,23 @@ ansible-galaxy install <role name>
 # You can configure the current directory as a location for the specific role to be installed
 ansible-galaxy install <role name> -p <path>
 
-# To see all the roles installed on your computer
+# To view all the roles installed on your computer
 ansible-galaxy list
 
-# To view the locations where the roles will be installed
+# To view the default locations where the roles will be installed
 ansible-config dump | grep ROLE
 
+# To view the role tree cd to the roles directory
+cd <path-to-the-folder>
+tree
+
+# Installs a collection in the default collection directory
+ansible-galaxy collection install <collection name>
+
+# Installs a collection in a specific directory (you need to change the COLLECTIONS_PATHS env to the new path)
+ansible-galaxy collection install <collection name> -p <path>
+
+# Lists all the ansible galaxy collections installed
+ansible-galaxy collection list
 
 
