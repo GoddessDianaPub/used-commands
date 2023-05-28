@@ -747,6 +747,9 @@ helm search repo <app name>
 # To lists existing local repos
 helm repo list
 
+# To remove a repo
+helm repo remove <repo name in the list>
+
 
 
 Monitoring
