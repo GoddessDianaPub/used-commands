@@ -3,8 +3,12 @@
 sudo apt install net-tools
 netstat -anp | grep 8500
 
-
+# View the logs for consul
 grep consul /var/log/syslog
+
+sudo journalctl -u consul.service -n 50
+
+cat /etc/consul.d/config.json
 
 sudo systemctl status consul.service
 

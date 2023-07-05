@@ -1,0 +1,11 @@
+Certificate
+
+cd /tmp
+openssl req -new -nodes -keyout dianatop.lat.key -out dianatop.lat.csr -subj "/C=IL/ST=GoddessDiana/L=Tel-Aviv City/O=dianatop/CN=*.dianatop.lat"
+openssl req -new -nodes -keyout dianatop.lat.key -out dianatop.lat.csr -subj "/C=IL/ST=GoddessDiana/L=Tel-Aviv City/O=dianatop/CN=dianatop.lat" -addext "subjectAltName = DNS:dianatop.lat, DNS:*.dianatop.lat"
+
+cd ~/easy-rsa
+./easyrsa import-req /tmp/dianatop.lat.csr dianatop.lat
+./easyrsa sign-req server dianatop.lat
+
+aws acm import-certificate --certificate file://dianatop.lat.crt --private-key file://dianatop.lat.key

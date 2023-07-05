@@ -1,3 +1,4 @@
+
 # Downloads an image from dokcer hub public registry
 docker pull <Image Name>
 
@@ -169,3 +170,6 @@ docker run -v <volume name>:/path/to/volume <image name>
 # To mount a volume in an external folder - bind mount
 docker run -v /path/to/folder:/default/path/to/folder <image name>
 docker run --mount type=bind,source=/path/to/folder,target=/default/path/to/folder <image name>
+
+
+

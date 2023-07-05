@@ -10,3 +10,123 @@ psql -h localhost -p 5433 -U <username> -d <db name>
 
 # Connecting to RDS instance
 psql -h <endpoint name> -p 5433 -U <username> -d <db name>
+
+
+
+
+Permissions:
+
+#To revoke the default create permission on the public schema from the public role using the following SQL statement:
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+
+#The following statement revokes the public role’s ability to connect to the database:
+REVOKE ALL ON DATABASE mydatabase FROM PUBLIC;
+
+
+Roles:
+
+CREATE ROLE readwrite;
+
+#Grant this role permission to connect to your target database:
+
+GRANT CONNECT ON DATABASE mydatabase TO readwrite;
+Grant schema usage privilege:
+
+GRANT USAGE ON SCHEMA myschema TO readwrite;
+
+#Grant access to the tables
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE mytable1, mytable2 TO readwrite;
+
+#To automatically grant permissions on tables and views added in the future:
+ALTER DEFAULT PRIVILEGES IN SCHEMA myschema GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO readwrite;
+
+#Grant permission to all sequences using the following SQL statement:
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA myschema TO readwrite;
+
+
+Users:
+
+#Create the user and grant it one of the existing roles
+CREATE USER kandula WITH PASSWORD 'Aa123456!';
+GRANT readwrite TO kandula;
+
+
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON DATABASE kandula FROM PUBLIC;
+CREATE ROLE readwrite;
+GRANT CONNECT ON DATABASE kandula TO readwrite;
+GRANT USAGE ON SCHEMA kandula TO readwrite;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE scheduling TO readwrite;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA kandula TO readwrite;
+CREATE USER kandula WITH PASSWORD 'Aa123456!';
+GRANT readwrite TO kandula;
+
+
+
+
+DROP DATABASE kandula;
+CREATE DATABASE kandula;
+
+CREATE SCHEMA IF NOT EXISTS kandula;
+
+GRANT ALL PRIVILEGES ON SCHEMA kandula TO public;
+
+
+
+CREATE TABLE kandula.instances_scheduler (
+    instance_id VARCHAR(255) PRIMARY KEY,
+    shutdown_time TIME
+);
+
+CREATE TABLE kandula.instances_shutdown_log (
+    log_id SERIAL PRIMARY KEY,
+    instance_id VARCHAR(255),
+    log_timestamp TIMESTAMP,
+    FOREIGN KEY (instance_id) REFERENCES kandula.instances_scheduler(instance_id)
+);
+
+
+
+CREATE ROLE readwrite;
+GRANT CONNECT ON DATABASE kandula TO readwrite;
+GRANT USAGE ON SCHEMA kandula TO readwrite;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE kandula.instances_scheduler TO readwrite;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA kandula TO readwrite;
+CREATE USER kandula WITH PASSWORD 'Aa123456!';
+GRANT readwrite TO kandula;
+ALTER DEFAULT PRIVILEGES IN SCHEMA kandula GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO readwrite;
+
+
+# Checks the pod connection to rds
+kubectl exec -it <pod-name> -n kandula -- python -c "import psycopg2; con = psycopg2.connect(host='rds-db-instance-0.cihzevxi90ql.us-east-1.rds.amazonaws.com', port=5432, database='kandula', user='kandula', password='Aa123456!'); con.close(); print('PostgreSQL connection successful!')"
+PostgreSQL connection successful!
+
+
+SELECT *
+FROM information_schema.tables
+WHERE table_type = 'BASE TABLE';
+
+
+SELECT *
+FROM information_schema.columns
+WHERE table_schema = 'kandula'
+  AND table_name = 'instances_scheduler';
+
+
+SELECT *
+FROM information_schema.columns
+WHERE table_schema = 'kandula'
+  AND table_name = 'instances_shutdown_log';
+
+
+
+i need to get the instance_ids details from aws to this table instances_scheduler under this column: instance_id
+Than i need to create a scheduling based on tags with the key Stop.
+Depends on the value provided in the value of that tag on each instance.
+I only need it to create the scheduling task for the instances that have an hour configured with this syntax: HH:MM (for example 20:00).
+It supposed to be updated in the the same instances_scheduler table within this column: shutdown_time.
+Of course i need it t log every thing that happend in the instances_shutdown_log table within the columns provided: log_id, instance_id, log_timestamp and instance_name.
+This are the functions that i should configure:
+def get_scheduling():
+def create_scheduling(instance_id, shutdown_hour):
+def delete_scheduling(instance_id):

@@ -1,0 +1,45 @@
+#Creates a cronjob that queries the amount of logged in users to my server and sends emails
+
+sudo apt-get update && sudo apt-get upgrade
+#Install postfix
+sudo apt-get install postfix
+#Leave Internet Site as the default and choose the domain name you want to see in the emails you are sending
+
+#Create a the file /etc/postfix/sasl/sasl_passwd and add your Gmail address and app password
+[smtp.gmail.com]:587 microdomainz@gmail.com:<google-app-password>
+
+#Create a hash database file
+sudo postmap /etc/postfix/sasl/sasl_passwd
+
+#Protect these files to allow only root to access it
+sudo chown root:root /etc/postfix/sasl/sasl_passwd /etc/postfix/sasl/sasl_passwd.db
+sudo chmod 0600 /etc/postfix/sasl/sasl_passwd /etc/postfix/sasl/sasl_passwd.db
+
+#Set the gmail server in this file /etc/postfix/main.cf
+sudo nano /etc/postfix/main.cf
+relayhost = [smtp.gmail.com]:587
+
+#Add the following to the end of this file /etc/postfix/main.cf
+# Enable SASL authentication
+smtp_sasl_auth_enable = yes
+smtp_sasl_security_options = noanonymous
+smtp_sasl_password_maps = hash:/etc/postfix/sasl/sasl_passwd
+smtp_tls_security_level = encrypt
+smtp_tls_CAfile = /etc/ssl/certs/ca-certificates.crt
+
+#Restart Postfix 
+sudo systemctl restart postfix
+
+#Install mailutils
+sudo apt-get install mailutils
+
+#Check if you can send emails
+echo "Testing Mailutils configuration" | mail -s "Test Email" recipient@example.com
+
+
+# Listed details about the hosted zone
+aws route53 get-hosted-zone --id <hosted-zone-id>
+
+# To list all the hpsted zone configured
+aws route53 list-hosted-zones
+

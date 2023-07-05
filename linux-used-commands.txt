@@ -157,6 +157,12 @@ nslookup <website address>
 # To test dns name resolutions
 dig <website address>
 
+# Refresh dns settings
+sudo netplan apply
+
+# Get systemd status
+systemd-resolve --status
+
 
 
 OpenVPN
@@ -177,10 +183,10 @@ sudo openvpn --config <file name>.ovpn
 AWS OpenVPN
 
 # Opens a VPN tunnel
-cd /path/to/file/<file name>.ovpn
+cd /path/to/file/
 
 # Starts a connection with an auto-login profile manually
-openvpn --config <file name>.ovpn
+sudo openvpn --config <file name>.ovpn
 
 # Starts a connection with a user-locked profile manually
 sudo openvpn --config <file name>.ovpn --auth-user-pass
